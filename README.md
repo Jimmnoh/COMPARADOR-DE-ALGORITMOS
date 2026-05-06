@@ -35,7 +35,7 @@ La interfaz web permite configurar los parámetros, ejecutar el benchmark y visu
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/sortbench.git
+git clone https://github.com/Jimmnoh/COMPARADOR-DE-ALGORITMOS.git
 cd sortbench
 ```
 
