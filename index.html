@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SortBench — Comparador de Algoritmos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #080c10;
+    --surface:  #0d1117;
+    --panel:    #161b22;
+    --border:   #21262d;
+    --border2:  #30363d;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --green:    #00ff9d;
+    --green2:   #00c97a;
+    --cyan:     #58d6f5;
+    --yellow:   #f0c84b;
+    --red:      #ff5a5a;
+    --gold:     #ffd700;
+    --silver:   #c0c0c0;
+    --bronze:   #cd7f32;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Syne', sans-serif;
+    --radius: 10px;
+    --glow: 0 0 20px rgba(0,255,157,.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,157,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,157,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .wrapper {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 48px 0 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .logo-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--green);
+    text-transform: uppercase;
+    opacity: .8;
+  }
+
+  header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #e6edf3 30%, var(--green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+
+  header p {
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 460px;
+  }
+
+  /* ── FORM PANEL ── */
+  .config-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .config-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+    opacity: .7;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media(max-width:640px) { .fields { grid-template-columns: 1fr; } }
+
+  .field label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .field input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(0,255,157,.1);
+  }
+
+  .field input::placeholder { color: var(--border2); }
+
+  /* ── BTN ── */
+  .btn-run {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--green);
+    color: #020c05;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s, background .15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-run:hover {
+    background: #00ffb0;
+    box-shadow: 0 0 30px rgba(0,255,157,.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-run:active { transform: translateY(0); }
+
+  .btn-run:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ── SPINNER ── */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(0,0,0,.2);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ARRAY DISPLAY ── */
+  .array-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    display: none;
+    animation: fadeUp .4s ease forwards;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .array-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .array-chips::-webkit-scrollbar { width: 4px; }
+  .array-chips::-webkit-scrollbar-track { background: var(--surface); }
+  .array-chips::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .chip {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    transition: border-color .15s;
+  }
+
+  .chip:hover { border-color: var(--cyan); }
+
+  /* ── RESULTS TABLE ── */
+  .results-section {
+    display: none;
+    animation: fadeUp .4s ease .1s both;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .results-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .badge {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 1px;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+
+  /* table */
+  .table-wrap {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    border-bottom: 1px solid var(--border2);
+  }
+
+  thead th {
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  thead th.right { text-align: right; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+    animation: rowIn .35s ease both;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,.02); }
+
+  td {
+    padding: 14px 18px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  td.right { text-align: right; }
+
+  /* position cell */
+  .pos-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .medal {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+  }
+
+  .pos-num {
+    font-size: 11px;
+    color: var(--muted);
+    width: 24px;
+    text-align: center;
+  }
+
+  /* algo name */
+  .algo-name {
+    font-weight: 600;
+  }
+
+  /* bar cell */
+  .bar-cell { width: 200px; }
+
+  .bar-wrap {
+    background: var(--surface);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  /* color rows by rank */
+  .rank-1 .algo-name { color: var(--green); }
+  .rank-2 .algo-name { color: #69f0ae; }
+  .rank-3 .algo-name { color: var(--yellow); }
+  .rank-4 .algo-name, .rank-5 .algo-name,
+  .rank-6 .algo-name, .rank-7 .algo-name { color: var(--text); }
+  .rank-8 .algo-name, .rank-9 .algo-name,
+  .rank-10 .algo-name { color: var(--red); }
+
+  .rank-1 .bar-fill { background: var(--green); }
+  .rank-2 .bar-fill { background: #69f0ae; }
+  .rank-3 .bar-fill { background: var(--yellow); }
+  .rank-4 .bar-fill, .rank-5 .bar-fill,
+  .rank-6 .bar-fill, .rank-7 .bar-fill { background: var(--cyan); }
+  .rank-8 .bar-fill, .rank-9 .bar-fill,
+  .rank-10 .bar-fill { background: var(--red); }
+
+  .time-val { font-weight: 600; }
+  .time-ns  { font-size: 11px; color: var(--muted); }
+  .steps-val { color: var(--muted); }
+
+  /* ── SUMMARY CARDS ── */
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+    animation: fadeUp .4s ease .2s both;
+  }
+
+  @media(max-width:600px) { .summary { grid-template-columns: 1fr; } }
+
+  .sum-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sum-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .sum-card.fastest::after { background: var(--green); }
+  .sum-card.slowest::after { background: var(--red); }
+  .sum-card.factor::after  { background: var(--yellow); }
+
+  .sum-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .sum-value {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 800;
+  }
+
+  .sum-card.fastest .sum-value { color: var(--green); }
+  .sum-card.slowest .sum-value { color: var(--red); }
+  .sum-card.factor  .sum-value { color: var(--yellow); }
+
+  .sum-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── ERROR ── */
+  .error-box {
+    background: rgba(255,90,90,.08);
+    border: 1px solid rgba(255,90,90,.3);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    color: var(--red);
+    font-size: 13px;
+    margin-top: 16px;
+    display: none;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 40px 0 20px;
+    font-size: 11px;
+    color: var(--border2);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <span class="logo-tag">⬡ SortBench v1.0</span>
+    <h1>Comparador de<br>Algoritmos</h1>
+    <p>Genera un arreglo aleatorio y mide el rendimiento de 10 algoritmos de ordenamiento en tiempo real.</p>
+  </header>
+
+  <!-- CONFIG FORM -->
+  <div class="config-card">
+    <div class="card-title">⚙ Configuración</div>
+    <div class="fields">
+      <div class="field">
+        <label>Cantidad de números</label>
+        <input type="number" id="inp-n" value="50" min="1" max="100000" placeholder="ej: 50">
+      </div>
+      <div class="field">
+        <label>Valor mínimo</label>
+        <input type="number" id="inp-lo" value="1" placeholder="ej: 1">
+      </div>
+      <div class="field">
+        <label>Valor máximo</label>
+        <input type="number" id="inp-hi" value="999" placeholder="ej: 999">
+      </div>
+    </div>
+    <button class="btn-run" id="btn-run" onclick="runBenchmark()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-label">▶ Ejecutar Comparación</span>
+    </button>
+    <div class="error-box" id="error-box"></div>
+  </div>
+
+  <!-- ARRAY -->
+  <div class="array-section" id="array-section">
+    <div class="section-label">Array generado</div>
+    <div class="array-chips" id="array-chips"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-section" id="results-section">
+    <div class="results-header">
+      <div class="results-title">Resultados</div>
+      <div class="badge" id="badge-info">— elementos · — algoritmos</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Posición</th>
+            <th>Algoritmo</th>
+            <th class="right">Pasos</th>
+            <th class="right">Tiempo</th>
+            <th>Rendimiento</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary" id="summary">
+      <div class="sum-card fastest">
+        <div class="sum-label">🥇 Más rápido</div>
+        <div class="sum-value" id="sum-fastest">—</div>
+        <div class="sum-sub" id="sum-fastest-time">—</div>
+      </div>
+      <div class="sum-card slowest">
+        <div class="sum-label">🐌 Más lento</div>
+        <div class="sum-value" id="sum-slowest">—</div>
+        <div class="sum-sub" id="sum-slowest-time">—</div>
+      </div>
+      <div class="sum-card factor">
+        <div class="sum-label">⚡ Factor</div>
+        <div class="sum-value" id="sum-factor">—</div>
+        <div class="sum-sub" id="sum-factor-sub">diferencia relativa</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>SortBench · 10 Algoritmos · Python + Flask backend</footer>
+
+<script>
+// ── UTILS ──────────────────────────────────
+function fmtNs(ns) {
+  if (ns < 1_000)           return `${ns} ns`;
+  if (ns < 1_000_000)       return `${(ns/1_000).toFixed(2)} µs`;
+  if (ns < 1_000_000_000)   return `${(ns/1_000_000).toFixed(2)} ms`;
+  return `${(ns/1_000_000_000).toFixed(4)} s`;
+}
+
+function fmtSteps(n) {
+  if (n >= 1_000_000) return `${(n/1_000_000).toFixed(2)}M`;
+  if (n >= 1_000)     return `${(n/1_000).toFixed(1)}K`;
+  return n.toLocaleString();
+}
+
+function medal(pos) {
+  return {1:'🥇', 2:'🥈', 3:'🥉'}[pos] ?? null;
+}
+
+// ── MAIN ──────────────────────────────────
+async function runBenchmark() {
+  const btn     = document.getElementById('btn-run');
+  const spinner = document.getElementById('spinner');
+  const label   = document.getElementById('btn-label');
+  const errBox  = document.getElementById('error-box');
+
+  // read inputs
+  const n  = parseInt(document.getElementById('inp-n').value)  || 50;
+  const lo = parseInt(document.getElementById('inp-lo').value);
+  const hi = parseInt(document.getElementById('inp-hi').value);
+
+  // validation
+  errBox.style.display = 'none';
+  if (isNaN(lo) || isNaN(hi)) {
+    showError('⚠ Ingresa valores numéricos válidos en todos los campos.'); return;
+  }
+  if (n < 1 || n > 100_000) {
+    showError('⚠ La cantidad debe estar entre 1 y 100,000.'); return;
+  }
+  if (lo > hi) {
+    showError('⚠ El valor mínimo no puede ser mayor al máximo.'); return;
+  }
+
+  // loading state
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Ejecutando…';
+
+  try {
+    const res  = await fetch('/benchmark', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({n, lo, hi})
+    });
+    if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
+    const data = await res.json();
+    renderResults(data);
+  } catch(e) {
+    showError(`⚠ No se pudo conectar con el servidor Python.\n${e.message}`);
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = '▶ Ejecutar Comparación';
+  }
+}
+
+// ── RENDER ────────────────────────────────
+function renderResults({ array, results }) {
+  // array chips
+  const chipsEl = document.getElementById('array-chips');
+  chipsEl.innerHTML = '';
+  array.forEach(v => {
+    const c = document.createElement('span');
+    c.className = 'chip';
+    c.textContent = v;
+    chipsEl.appendChild(c);
+  });
+  document.getElementById('array-section').style.display = 'block';
+
+  // badge
+  document.getElementById('badge-info').textContent =
+    `${array.length.toLocaleString()} elementos · ${results.length} algoritmos`;
+
+  // table
+  const tbody  = document.getElementById('results-body');
+  tbody.innerHTML = '';
+  const maxNs = results[results.length - 1].time_ns;
+
+  results.forEach((r, idx) => {
+    const pct   = maxNs > 0 ? (r.time_ns / maxNs * 100).toFixed(1) : 0;
+    const m     = medal(r.position);
+    const delay = idx * 50;
+
+    const tr = document.createElement('tr');
+    tr.className = `rank-${r.position}`;
+    tr.style.animationDelay = `${delay}ms`;
+    tr.innerHTML = `
+      <td>
+        <div class="pos-cell">
+          ${m
+            ? `<span class="medal">${m}</span>`
+            : `<span class="pos-num">#${r.position}</span>`}
+        </div>
+      </td>
+      <td><span class="algo-name">${r.name}</span></td>
+      <td class="right steps-val">${fmtSteps(r.steps)}</td>
+      <td class="right">
+        <div class="time-val">${fmtNs(r.time_ns)}</div>
+        <div class="time-ns">${r.time_ns.toLocaleString()} ns</div>
+      </td>
+      <td class="bar-cell">
+        <div class="bar-wrap">
+          <div class="bar-fill" id="bar-${idx}" style="width:0%"></div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    // animate bars after paint
+    setTimeout(() => {
+      document.getElementById(`bar-${idx}`).style.width = `${pct}%`;
+    }, delay + 80);
+  });
+
+  // show results
+  document.getElementById('results-section').style.display = 'block';
+
+  // summary
+  const fastest = results[0];
+  const slowest  = results[results.length - 1];
+  const factor   = fastest.time_ns > 0
+    ? (slowest.time_ns / fastest.time_ns).toFixed(1)
+    : '—';
+
+  document.getElementById('sum-fastest').textContent     = fastest.name;
+  document.getElementById('sum-fastest-time').textContent = fmtNs(fastest.time_ns);
+  document.getElementById('sum-slowest').textContent     = slowest.name;
+  document.getElementById('sum-slowest-time').textContent = fmtNs(slowest.time_ns);
+  document.getElementById('sum-factor').textContent      = `${factor}×`;
+  document.getElementById('sum-factor-sub').textContent  =
+    `${slowest.name} fue ${factor}× más lento`;
+
+  // scroll to results
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showError(msg) {
+  const b = document.getElementById('error-box');
+  b.textContent = msg;
+  b.style.display = 'block';
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') runBenchmark();
+});
+</script>
+</body>
+</html>
