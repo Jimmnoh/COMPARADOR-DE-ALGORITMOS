@@ -36,7 +36,7 @@ La interfaz web permite configurar los parámetros, ejecutar el benchmark y visu
 
 ```bash
 git clone https://github.com/Jimmnoh/COMPARADOR-DE-ALGORITMOS.git
-cd sortbench
+cd COMPARADOR-DE-ALGORITMOS
 ```
 
 ### 2. Instalar dependencias
