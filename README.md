@@ -1,15 +1,8 @@
-# ⬡ SortBench — Comparador de Algoritmos de Ordenamiento
+# Comparador de Algoritmos de Ordenamiento
 
-> Herramienta interactiva que genera un arreglo aleatorio y mide el rendimiento de **10 algoritmos de ordenamiento** en tiempo real, mostrando resultados ordenados por tiempo de ejecución en nanosegundos.
+Herramienta interactiva que genera un arreglo aleatorio y mide el rendimiento de **10 algoritmos de ordenamiento** en tiempo real, mostrando resultados ordenados por tiempo de ejecución en nanosegundos.
 
-![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=flat-square&logo=flask&logoColor=white)
-![HTML5](https://img.shields.io/badge/HTML5-CSS3-E34F26?style=flat-square&logo=html5&logoColor=white)
-![License](https://img.shields.io/badge/Licencia-MIT-green?style=flat-square)
-
----
-
-## 📋 Tabla de Contenidos
+##  Tabla de Contenidos
 
 - [Vista Previa](#-vista-previa)
 - [Requisitos](#-requisitos)
@@ -17,17 +10,16 @@
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Algoritmos Implementados](#-algoritmos-implementados)
 - [Cómo Funciona](#-cómo-funciona)
-- [Modificar el Proyecto](#-modificar-el-proyecto)
 
 ---
 
-## 🖥 Vista Previa
+## Vista Previa
 
 La interfaz web permite configurar los parámetros, ejecutar el benchmark y visualizar los resultados con barras de rendimiento proporcionales, medallas para los 3 primeros lugares y un resumen comparativo.
 
 ---
 
-## ✅ Requisitos
+## Requisitos
 
 | Requisito | Versión mínima |
 |-----------|---------------|
@@ -38,7 +30,7 @@ La interfaz web permite configurar los parámetros, ejecutar el benchmark y visu
 
 ---
 
-## 🚀 Instalación y Ejecución
+## Instalación y Ejecución
 
 ### 1. Clonar el repositorio
 
@@ -85,7 +77,7 @@ Si no abre automáticamente, pega esa URL en tu navegador.
 
 ---
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 sortbench/
@@ -98,7 +90,7 @@ sortbench/
 
 ---
 
-## 🔢 Algoritmos Implementados
+##  Algoritmos Implementados
 
 | # | Algoritmo | Complejidad Promedio | Complejidad Peor Caso |
 |---|-----------|---------------------|-----------------------|
@@ -132,7 +124,7 @@ Usuario (navegador)          Backend (Python/Flask)
        │ ◄──── JSON con resultados ── │
        │                              │
        │  Renderiza tabla + barras    │
-       │  Muestra resumen (🥇🥈🥉)    │
+       │  Muestra resumen (1 2 3)    │
 ```
 
 1. El usuario ingresa la **cantidad de números**, el **valor mínimo** y el **valor máximo** del rango.
@@ -143,58 +135,3 @@ Usuario (navegador)          Backend (Python/Flask)
 6. El frontend renderiza la tabla con barras proporcionales y el resumen comparativo.
 
 ---
-
-## 🔧 Modificar el Proyecto
-
-### Agregar un nuevo algoritmo
-
-En `app.py`:
-
-```python
-# 1. Define la función — debe retornar (lista_ordenada, pasos)
-def mi_algoritmo(arr):
-    a = arr[:]
-    steps = 0
-    # ... tu lógica aquí ...
-    return a, steps
-
-# 2. Regístralo en la lista ALGORITHMS
-ALGORITHMS = [
-    ...
-    ("Mi Algoritmo", mi_algoritmo),  # ← agrega esta línea
-]
-```
-
-### Cambiar el límite máximo de elementos
-
-En `app.py`, línea:
-```python
-n = max(1, min(n, 100_000))   # cambia 100_000 por el límite que quieras
-```
-
-### Cambiar el puerto del servidor
-
-En `app.py`, última línea:
-```python
-app.run(port=5050)   # cambia 5050 por el puerto deseado
-```
-Recuerda actualizar también la URL en `index.html` si cambias el puerto.
-
-### Personalizar la interfaz
-
-Todos los colores y fuentes están definidos como variables CSS al inicio de `index.html`:
-
-```css
-:root {
-  --green:  #00ff9d;   /* color principal / acento */
-  --bg:     #080c10;   /* fondo general */
-  --panel:  #161b22;   /* fondo de paneles */
-  /* ... */
-}
-```
-
----
-
-## 📄 Licencia
-
-MIT — libre para usar, modificar y distribuir.
